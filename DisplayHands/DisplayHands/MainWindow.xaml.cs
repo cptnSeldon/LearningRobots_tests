@@ -31,7 +31,7 @@ namespace DisplayHands
 
         private IList<HandMetadata> history = new List<HandMetadata>();
         private Object lockHistory = new Object();
-        private int maxHistory = 5;
+        private int maxHistory = 15;
 
         private HandMetadata lastHandMetadata;
         #endregion ATTRIBUTES
@@ -144,7 +144,7 @@ namespace DisplayHands
         {
             lock (history)
             {
-                if (history.Count > 1)
+                if (history.Count > maxHistory - 1)
                 {
                     int[][] leftPoints = new int[2][];
                     int[][] rightPoints = new int[2][];
