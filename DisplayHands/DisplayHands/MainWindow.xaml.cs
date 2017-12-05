@@ -90,7 +90,8 @@ namespace DisplayHands
             labelRightHand_.Content = $"{lastHandMetadata.RightHandPosition[0]}, {lastHandMetadata.RightHandPosition[1]}";
 
             DrawHands(bitmap);
-            DrawHistory(bitmap);
+            //DrawHistory(bitmap);
+            DrawVector(bitmap);
 
             image.Source = BitmapToImageSource(bitmap);
         }
@@ -136,6 +137,55 @@ namespace DisplayHands
                     g.DrawLines(penRight, rightPoints);
                 }
                 
+            }
+        }
+
+        private int[][] CalculateNaiveVector(int scale)
+        {
+            lock (history)
+            {
+                if (history.Count > 1)
+                {
+                    int[][] leftPoints = new int[2][];
+                    int[][] rightPoints = new int[2][];
+                    
+                    leftPoints[1] = new int[] { history[history.Count - 1].LeftHandPosition[0], history[history.Count - 1].LeftHandPosition[1] };
+                    rightPoints[1] = new int[] { history[history.Count - 1].RightHandPosition[0], history[history.Count - 1].RightHandPosition[1] };
+                    leftPoints[0] = new int[] { history[0].LeftHandPosition[0], history[0].LeftHandPosition[1] };
+                    rightPoints[0] = new int[] { history[0].RightHandPosition[0], history[0].RightHandPosition[1] };
+
+                    int[][] vector = new int[2][];
+
+                    vector[0] = new int[] { (leftPoints[1][0] - leftPoints[0][0]) * scale, (leftPoints[1][1] - leftPoints[0][1]) * scale };
+                    vector[1] = new int[] { (rightPoints[1][0] - rightPoints[0][0]) * scale, (rightPoints[1][1] - rightPoints[0][1]) * scale };
+
+                    return vector;
+                }
+                return null;
+            }
+           
+        }
+
+        private void DrawVector(Bitmap bitmap)
+        {
+            //vector = 0B - 0A
+            int[][] v = CalculateNaiveVector(5);
+
+            if( v != null){
+                Graphics g = Graphics.FromImage(bitmap);
+                System.Drawing.Pen penLeft = new System.Drawing.Pen(System.Drawing.Color.Red, 3.0f);
+                System.Drawing.Pen penRight = new System.Drawing.Pen(System.Drawing.Color.Blue, 3.0f);
+
+                int leftX = lastHandMetadata.LeftHandPosition[0];
+                int leftY = lastHandMetadata.LeftHandPosition[1];
+                int rightX = lastHandMetadata.RightHandPosition[0];
+                int rightY = lastHandMetadata.RightHandPosition[1];
+
+                //v[left or right][point1 or point2][x or y]
+                g.DrawLine(penLeft, new System.Drawing.Point(leftX, leftY), new System.Drawing.Point(leftX + v[0][0], leftY + v[0][1]));
+                g.DrawEllipse(penLeft, new RectangleF(leftX + v[0][0], leftY + v[0][1], 5, 5));
+                g.DrawLine(penRight, new System.Drawing.Point(rightX, rightY), new System.Drawing.Point(rightX + v[1][0], rightY + v[1][1]));
+                g.DrawEllipse(penRight, new RectangleF(rightX + v[1][0], rightY + v[1][1], 5, 5));
             }
         }
 
