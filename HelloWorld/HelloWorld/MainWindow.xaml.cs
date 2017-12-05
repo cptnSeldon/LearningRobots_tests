@@ -1,7 +1,9 @@
 ﻿
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Threading;
 using System.Drawing;
 
@@ -16,13 +18,17 @@ namespace HelloWorld
         #region ATTRIBUTES
         private Thread processingThread;
         private PXCMSenseManager senseManager;
-        private PXCMHandModule hand;
-        private PXCMHandConfiguration handConfig;
+
+        private PXCMHandModule handAnalysis;
+        private PXCMHandConfiguration handConfiguration;
         private PXCMHandData handData;
-        private PXCMHandData.GestureData gestureData;
-        private bool handWaving;
-        private bool handTrigger;
-        private int msgTimer;
+
+        private HandsRecognition handsRecognition;
+        //private PXCMHandData.GestureData gestureData;
+
+        //private bool handWaving;
+        //private bool handTrigger;
+        private bool started = false;
         #endregion ATTRIBUTES
 
         /// <summary>
@@ -35,27 +41,7 @@ namespace HelloWorld
         {
             #region ATTRIBUTES
             InitializeComponent();
-            handWaving = false;
-            handTrigger = false;
-            msgTimer = 0;
             #endregion ATTRIBUTES
-
-            // Instantiate and initialize the SenseManager
-            senseManager = PXCMSenseManager.CreateInstance();
-            senseManager.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, 640, 480, 30);
-            senseManager.EnableHand();
-            senseManager.Init();
-
-            // Configure the Hand Module
-            hand = senseManager.QueryHand();
-            handConfig = hand.CreateActiveConfiguration();
-            handConfig.EnableGesture("wave");
-            handConfig.EnableAllAlerts();
-            handConfig.ApplyChanges();
-
-            // Start the worker thread
-            processingThread = new Thread(new ThreadStart(ProcessingThread));
-            processingThread.Start();
         }
 
         #region WINDOW EVENT HANDLERS
@@ -67,7 +53,7 @@ namespace HelloWorld
         /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblMessage.Content = "(Wave Your Hand)";
+            
         }
 
         /// <summary>
@@ -78,12 +64,44 @@ namespace HelloWorld
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            processingThread.Abort();
+            /*processingThread.Abort();
             if (handData != null) handData.Dispose();
-            handConfig.Dispose();
-            senseManager.Dispose();
+            handConfiguration.Dispose();
+            senseManager.Dispose();*/
         }
         #endregion WINDOW EVENT HANDLERS
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (!started)
+            {
+                started = true;
+                buttonStart.Content = "Stop";
+                Console.WriteLine("start");
+
+                /*// Instantiate and initialize the SenseManager
+                senseManager = PXCMSenseManager.CreateInstance();
+                senseManager.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, 640, 480, 30);
+                senseManager.EnableHand();
+                senseManager.Init();
+
+                // Start the worker thread
+                processingThread = new Thread(new ThreadStart(ProcessingThread));
+                processingThread.Start();*/
+
+                handsRecognition = new HandsRecognition();
+                handsRecognition.NewDataEvent += Recognition_NewDataEvent;
+                new Thread(() => handsRecognition.SimplePipeline()).Start();
+            }
+            else
+            {
+                buttonStart.Content = "Start";
+                started = false;
+                Console.WriteLine("stop");
+
+                handsRecognition.SignalStop();
+            }
+        }
 
         #region WORKER THREAD
         /// <summary>
@@ -106,22 +124,12 @@ namespace HelloWorld
                 PXCMCapture.Sample sample = senseManager.QuerySample();
                 Bitmap colorBitmap;
                 PXCMImage.ImageData colorData;
+                
                 #endregion ATTRIBUTES
 
                 // Get color image data
                 sample.color.AcquireAccess(PXCMImage.Access.ACCESS_READ, PXCMImage.PixelFormat.PIXEL_FORMAT_RGB24, out colorData);
                 colorBitmap = colorData.ToBitmap(0, sample.color.info.width, sample.color.info.height);
-
-                // Retrieve gesture data
-                hand = senseManager.QueryHand();
-
-                if (hand != null)
-                {
-                    // Retrieve the most recent processed data
-                    handData = hand.CreateOutput();
-                    handData.Update();
-                    handWaving = handData.IsGestureFired("wave", out gestureData);
-                }
 
                 // Update the user interface
                 UpdateUI(colorBitmap);
@@ -157,30 +165,40 @@ namespace HelloWorld
                     imgColorStream.RenderTransform = mainTransform;
 
                     // Display the color stream using the method created in ConvertBitmap
-                    imgColorStream.Source = ConvertBitmap.BitmapToBitmapSource(bitmap);
-
-                    // Update the screen message
-                    if (handWaving)
-                    {
-                        lblMessage.Content = "Hello World!";
-                        handTrigger = true;
-                    }
-
-                    // Reset the screen message after ~50 frames
-                    if (handTrigger)
-                    {
-                        msgTimer++;
-
-                        if (msgTimer >= 50)
-                        {
-                            lblMessage.Content = "(Wave Your Hand)";
-                            msgTimer = 0;
-                            handTrigger = false;
-                        }
-                    }
+                    imgColorStream.Source = ConvertBitmap.BitmapToBitmapSource(bitmap); 
                 }
             }));
         }
         #endregion DISPATCHER FOR EXECUTING OPERATIONS ON THE UI THREAD
+
+        private void Recognition_NewDataEvent(PXCMHandData data, int frameNumber)
+        {
+            this.Dispatcher.Invoke(() => DrawStuff(data, frameNumber));
+        }
+
+        private void DrawStuff(PXCMHandData data, int frameNumber)
+        {
+            Bitmap bitmap = new Bitmap((int)imgColorStream.Width, (int)imgColorStream.Height);
+
+            handsRecognition.DisplayJoints(data, bitmap, frameNumber);
+
+            imgColorStream.Source = BitmapToImageSource(bitmap);
+        }
+
+        BitmapImage BitmapToImageSource(Bitmap bitmap)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Bmp);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+
+                return bitmapimage;
+            }
+        }
     }
 }

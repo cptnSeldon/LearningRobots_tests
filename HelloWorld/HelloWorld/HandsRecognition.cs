@@ -4,26 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
 
-/// <summary>
-/// WPF version of IntelRealSense's SDK samples (converted from WindowsForm): HandViewer C#
-/// </summary>
-namespace DisplayHands
+namespace HelloWorld
 {
     class HandsRecognition
     {
         #region ATTRIBUTES
-        public event Action<PXCMHandData, int, HandMetadata> NewDataEvent; //PXCMHandData : manages handtracking module output data
-        public event Action<Bitmap> NewRGBImageEvent; //PXCMHandData : manages handtracking module output data
+        readonly byte[] _lut;
+        public event Action<PXCMHandData, int> NewDataEvent; //PXCMHandData : manages handtracking module output data
 
         public PXCMSession g_session;   //maintains the SDK context
         public Dictionary<string, PXCMCapture.DeviceInfo> Devices { get; set; } //devices' information
         private readonly Queue<PXCMImage> _mImages; //contains depth image - synchronization purpose
         private PXCMCapture _capture;   //provides functions to query video capture devices + their instance creation
-
-        private PXCMHandData.BodySideType[] bodySideType;
 
         private const int NumberOfFramesToDelay = 3;
 
@@ -37,11 +30,12 @@ namespace DisplayHands
         /// <summary>
         /// Constructor: initialize current session
         /// </summary>
-        public HandsRecognition() {
+        public HandsRecognition()
+        {
 
             _mImages = new Queue<PXCMImage>();  //PXCMImage: image buffer access, here put into a queue
             g_session = PXCMSession.CreateInstance();   //session instance creation
-            bodySideType = new PXCMHandData.BodySideType[2];    //sides: left, right, unknown
+
         }
 
 
@@ -54,7 +48,7 @@ namespace DisplayHands
         /// <param name="timeStamp"></param>
         public void DisplayJoints(PXCMHandData handOutput, Bitmap bitmap, long timeStamp = 0)
         {
-            
+
             //Iterate hands
             PXCMHandData.JointData[][] nodes = new PXCMHandData.JointData[][] { new PXCMHandData.JointData[PXCMHandData.NUMBER_OF_JOINTS], new PXCMHandData.JointData[PXCMHandData.NUMBER_OF_JOINTS] };
             PXCMHandData.ExtremityData[][] extremityNodes = new PXCMHandData.ExtremityData[][] { new PXCMHandData.ExtremityData[PXCMHandData.NUMBER_OF_EXTREMITIES], new PXCMHandData.ExtremityData[PXCMHandData.NUMBER_OF_EXTREMITIES] };
@@ -63,16 +57,11 @@ namespace DisplayHands
 
             for (int i = 0; i < numOfHands; i++)
             {
-                
-
                 #region GET HAND BY TIME OF APPEARANCE
                 if (handOutput.QueryHandData(PXCMHandData.AccessOrderType.ACCESS_ORDER_BY_TIME, i, out PXCMHandData.IHand handData) == pxcmStatus.PXCM_STATUS_NO_ERROR)
                 {
                     if (handData != null)
                     {
-                       //retrieve body side per hand
-                       bodySideType[i] = handData.QueryBodySide();
-
                         #region ITERATE OVER JOINTS
                         for (int j = 0; j < PXCMHandData.NUMBER_OF_JOINTS; j++)
                         {
@@ -94,13 +83,14 @@ namespace DisplayHands
             }
 
             //draw joints on screen
-            DrawJoints(nodes, bitmap, numOfHands, bodySideType);
+            DrawJoints(nodes, bitmap, numOfHands);
 
-           /* if (numOfHands > 0)
+            /*if (numOfHands > 0)
             {
             
-                    DisplayExtremities(numOfHands, extremityNodes);
+                    _form.DisplayExtremities(numOfHands, extremityNodes);
             }*/
+
         }
 
         /// <summary>
@@ -109,7 +99,7 @@ namespace DisplayHands
         /// <param name="nodes"></param>
         /// <param name="bitmap"></param>
         /// <param name="numOfHands"></param>
-        private void DrawJoints(PXCMHandData.JointData[][] nodes, Bitmap bitmap, int numOfHands, PXCMHandData.BodySideType[] bodySideType)
+        private void DrawJoints(PXCMHandData.JointData[][] nodes, Bitmap bitmap, int numOfHands)
         {
             //nothing is drawn if no data is received
             if (bitmap == null) return;
@@ -126,7 +116,6 @@ namespace DisplayHands
                 {
                     for (int i = 0; i < numOfHands; i++)
                     {
-                        //TODO: correct SCALE FACTOR
                         if (nodes[i][0] == null) continue;
                         int baseX = (int)nodes[i][0].positionImage.x / scaleFactor;
                         int baseY = (int)nodes[i][0].positionImage.y / scaleFactor;
@@ -135,18 +124,9 @@ namespace DisplayHands
                         int wristY = (int)nodes[i][0].positionImage.y / scaleFactor;
 
                         #region HAND ID
-                        Font drawFont = new Font("Arial", 10);
+                        Font drawFont = new Font("Arial", 16);
                         SolidBrush drawBrush = new SolidBrush(Color.White);
-
-                        GraphicsState state = g.Save();
-                        g.ResetTransform();
-                        g.ScaleTransform(-1, 1);
-
-                        g.TranslateTransform(wristX, wristY+5, MatrixOrder.Append);
-                        g.DrawString(bodySideType[i].ToString(), drawFont, drawBrush, 0, 0);
-
-                        g.Restore(state);
-
+                        g.DrawString("main", drawFont, drawBrush, wristX, wristY + 5);
                         #endregion HAND ID
 
                         for (int j = 1; j < 22; j++)
@@ -181,7 +161,7 @@ namespace DisplayHands
                                 yellow = new Pen(Color.Yellow, 3.0f),
                                 orange = new Pen(Color.Orange, 3.0f))
                         {
-                            Pen currentPen = black;
+                            Pen currnetPen = black;
 
                             for (int j = 0; j < PXCMHandData.NUMBER_OF_JOINTS; j++)
                             {
@@ -195,43 +175,40 @@ namespace DisplayHands
                                 //Wrist
                                 if (j == 0)
                                 {
-                                    currentPen = black;
+                                    currnetPen = black;
                                 }
 
                                 //Center
                                 if (j == 1)
                                 {
-                                    currentPen = red;
+                                    currnetPen = red;
                                     sz += 4;
-
-                                    Console.WriteLine("x: " + x + ", y: " + y);
-
                                 }
 
                                 //Thumb
                                 if (j == 2 || j == 3 || j == 4 || j == 5)
                                 {
-                                    currentPen = green;
+                                    currnetPen = green;
                                 }
                                 //Index Finger
                                 if (j == 6 || j == 7 || j == 8 || j == 9)
                                 {
-                                    currentPen = blue;
+                                    currnetPen = blue;
                                 }
                                 //Finger
                                 if (j == 10 || j == 11 || j == 12 || j == 13)
                                 {
-                                    currentPen = yellow;
+                                    currnetPen = yellow;
                                 }
                                 //Ring Finger
                                 if (j == 14 || j == 15 || j == 16 || j == 17)
                                 {
-                                    currentPen = cyan;
+                                    currnetPen = cyan;
                                 }
                                 //Pinkey
                                 if (j == 18 || j == 19 || j == 20 || j == 21)
                                 {
-                                    currentPen = orange;
+                                    currnetPen = orange;
                                 }
 
 
@@ -240,7 +217,7 @@ namespace DisplayHands
                                     sz += 4;
                                 }
 
-                                g.DrawEllipse(currentPen, x - sz / 2, y - sz / 2, sz, sz);
+                                g.DrawEllipse(currnetPen, x - sz / 2, y - sz / 2, sz, sz);
                             }
                         }
 
@@ -283,7 +260,7 @@ namespace DisplayHands
                     if (g_session.QueryImpl(desc, i, out PXCMSession.ImplDesc desc1) < pxcmStatus.PXCM_STATUS_NO_ERROR) break;
 
                     if (g_session.CreateImpl<PXCMCapture>(desc1, out _capture) < pxcmStatus.PXCM_STATUS_NO_ERROR) continue;
-                    
+
                     for (int j = 0; ; j++)
                     {
                         if (_capture.QueryDeviceInfo(j, out PXCMCapture.DeviceInfo dinfo) < pxcmStatus.PXCM_STATUS_NO_ERROR) break;
@@ -298,10 +275,10 @@ namespace DisplayHands
 
                 //Change this if you want an other camera sensor
                 info = Devices.Values.First<PXCMCapture.DeviceInfo>();
-                
+
                 captureManager.FilterByDeviceInfo(info);
                 liveCamera = true;
-                
+
                 if (info == null)
                 {
                     Console.WriteLine("Device Failure");
@@ -323,7 +300,6 @@ namespace DisplayHands
             PXCMHandConfiguration handConfiguration = null;
             PXCMHandData handData = null;
 
-            instance.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, 640, 480, 30);
 
             pxcmStatus status = instance.EnableHand();
             handAnalysis = instance.QueryHand();
@@ -353,8 +329,6 @@ namespace DisplayHands
                 return;
             }
 
-            
-            FPSTimer timer = new FPSTimer();
             Console.WriteLine("Init Started");
             if (instance.Init(handler) == pxcmStatus.PXCM_STATUS_NO_ERROR)
             {
@@ -369,11 +343,11 @@ namespace DisplayHands
 
                 }
 
-                
+
                 if (handConfiguration != null)
                 {
                     PXCMHandData.TrackingModeType trackingMode = PXCMHandData.TrackingModeType.TRACKING_MODE_FULL_HAND;
-                    
+
                     trackingMode = PXCMHandData.TrackingModeType.TRACKING_MODE_FULL_HAND;
 
                     handConfiguration.SetTrackingMode(trackingMode);
@@ -383,7 +357,7 @@ namespace DisplayHands
                     bool isEnabled = handConfiguration.IsSegmentationImageEnabled();
 
                     handConfiguration.ApplyChanges();
-                    
+
                 }
 
                 Console.WriteLine("Streaming");
@@ -392,7 +366,7 @@ namespace DisplayHands
 
                 while (!isStopping)
                 {
-                    
+
                     if (instance.AcquireFrame(true) < pxcmStatus.PXCM_STATUS_NO_ERROR)
                     {
                         break;
@@ -403,23 +377,21 @@ namespace DisplayHands
                     if (!DisplayDeviceConnection(!instance.IsConnected()))
                     {
                         PXCMCapture.Sample sample = instance.QueryHandSample();
-                        
+
                         if (sample != null && sample.depth != null)
                         {
                             frameNumber = liveCamera ? frameCounter : instance.captureManager.QueryFrameIndex();
-                            
+
                             if (handData != null)
                             {
                                 handData.Update();
-                                NewDataEvent?.Invoke(handData, frameNumber, getMetaData(handData));
+                                NewDataEvent?.Invoke(handData, frameNumber);
                                 //DisplayPicture(sample.depth, handData);
                                 //DisplayGesture(handData, frameNumber);
                                 //DisplayJoints(handData,bitmap);
                                 //DisplayAlerts(handData, frameNumber);
                             }
                         }
-                        OnNewSample(instance.QuerySample());
-                        timer.Tick();
                     }
                     instance.ReleaseFrame();
                 }
@@ -435,28 +407,17 @@ namespace DisplayHands
             }
 
             // Clean Up
+
             if (handData != null) handData.Dispose();
             if (handConfiguration != null) handConfiguration.Dispose();
-            
-          
+
+
             instance.Close();
             instance.Dispose();
 
             if (flag)
             {
                 Console.WriteLine("Stopped");
-            }
-        }
-
-        public void OnNewSample(PXCMCapture.Sample sample) {
-            if (sample == null || sample.color ==  null)
-                return;
-
-            sample.color.AcquireAccess(PXCMImage.Access.ACCESS_READ, PXCMImage.PixelFormat.PIXEL_FORMAT_RGB32, out PXCMImage.ImageData data);
-            Bitmap bitmap = data.ToBitmap(0, sample.color.info.width, sample.color.info.height);
-            if (bitmap != null)
-            {
-                NewRGBImageEvent?.Invoke(bitmap);
             }
         }
         public void SignalStop() { isStopping = true; }
@@ -486,7 +447,6 @@ namespace DisplayHands
             return _disconnected;
         }
 
-
         private void DisplayGesture(PXCMHandData handAnalysis, int frameNumber)
         {
 
@@ -512,41 +472,20 @@ namespace DisplayHands
                     if (bodySideType == PXCMHandData.BodySideType.BODY_SIDE_LEFT)
                     {
                         gestureStatusLeft += "Left Hand Gesture: " + gestureData.name;
-
-                        Console.WriteLine("Gesture: " + gestureStatusLeft);
-
                     }
                     else if (bodySideType == PXCMHandData.BodySideType.BODY_SIDE_RIGHT)
                     {
                         gestureStatusRight += "Right Hand Gesture: " + gestureData.name;
-
-                        Console.WriteLine("Gesture: " + gestureStatusRight);
-
                     }
 
                 }
 
             }
-
             /*if (gestureStatusLeft == String.Empty)
-                labelLeftHand = "Frame " + frameNumber + ") " + gestureStatusRight;
+                LabelTextLeft = "Frame " + frameNumber + ") " + gestureStatusRight;
             else
-                labelRightHand = "Frame " + frameNumber + ") " + gestureStatusLeft + ", " + gestureStatusRight;*/
-     
-        }
-
-
-        private HandMetadata getMetaData(PXCMHandData data)
-        {
-            data.QueryHandData(PXCMHandData.AccessOrderType.ACCESS_ORDER_LEFT_HANDS, 0, out PXCMHandData.IHand leftHand);
-
-            PXCMPointF32 leftPosition = leftHand?.QueryMassCenterImage() ?? new PXCMPointF32();
-
-            data.QueryHandData(PXCMHandData.AccessOrderType.ACCESS_ORDER_RIGHT_HANDS, 0, out PXCMHandData.IHand rightHand);
-
-            PXCMPointF32 rightPosition = rightHand?.QueryMassCenterImage() ?? new PXCMPointF32();
-
-            return new HandMetadata(new int[] { (int)leftPosition.x, (int)leftPosition.y}, new int[] { (int)rightPosition.x, (int)rightPosition.y });
+                LabelTextRight = "Frame " + frameNumber + ") " + gestureStatusLeft + ", " + gestureStatusRight;
+             */
         }
     }
 }
