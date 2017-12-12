@@ -5,42 +5,62 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DisplayHands"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
+        Title="MainWindow" MinHeight="600" MinWidth="800">
     <Grid x:Name="grid">
-        <Button x:Name="buttonStart" Content="Button" HorizontalAlignment="Left" Margin="709,534,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Height="26"/>
 
-        <Canvas x:Name="canvas" Height="{Binding Path=ActualHeight, ElementName=grid}" Width="{Binding Path=ActualWidth, ElementName=grid}">
-            <Image x:Name="image" Height="500" Width="{Binding Path=ActualWidth, ElementName=grid}"
-                   HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Grid x:Name="rectGrid" 
-                  Width="{Binding Path=ActualWidth, ElementName=image}" Height="{Binding Path=ActualHeight, ElementName=image}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Rectangle x:Name="rectangleA" Grid.Row="0" Grid.Column="0"  Fill="Red" Opacity="0.5" />
-                <Rectangle x:Name="rectangleB" Grid.Row="0" Grid.Column="1"  Fill="Blue" Opacity="0.5" />
-                <Rectangle x:Name="rectangleC" Grid.Row="0" Grid.Column="2"  Fill="Green" Opacity="0.5" />
-                <Rectangle x:Name="rectangleD" Grid.Row="0" Grid.Column="3"  Fill="Yellow" Opacity="0.5" />
-                <Rectangle x:Name="rectangleE" Grid.Row="1" Grid.Column="3"  Fill="Orange" Opacity="0.5" />
-            </Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="mainRow" Height="10*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="mainCol"/>
+        </Grid.ColumnDefinitions>
+
+        <Canvas x:Name="canvas" Grid.Row="0" ClipToBounds="True" Height="{Binding Path=ActualHeight, ElementName=grid}" Width="{Binding Path=ActualWidth, ElementName=grid}"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="image" Grid.Row="0" Height="{Binding Path=ActualHeight, ElementName=canvas}" Width="{Binding Path=ActualWidth, ElementName=canvas}" />
         </Canvas>
-        
-        <Label x:Name="labelLeftHand" Content="Left" Width="50" Height="25" 
-               VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-        <Label x:Name="labelLeftHand_" Content="Info displayed here" Width="300" Height="25" 
-               VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="55,0,0,0.4"/>
-        <Label x:Name="labelRightHand" Content="Right" Width="50" Height="25
-               " VerticalAlignment="Bottom" HorizontalAlignment="Left" RenderTransformOrigin="0.487,-0.984" Margin="0,0,0,25"/>
-        <Label x:Name="labelRightHand_" Content="Info displayed here" Width="300" Height="25
-               " VerticalAlignment="Bottom" HorizontalAlignment="Left" RenderTransformOrigin="0.487,-0.984" Margin="55,0,0,25.4"/>
-        
+
+        <Grid x:Name="intern" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="buttonStart" Content="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="Button_Click" Height="26"
+                Grid.Column="1"/>
+
+            <Slider x:Name="sliderRectangles" TickFrequency="1" TickPlacement="BottomRight" Minimum="0" Maximum="5" VerticalAlignment="Center" 
+                    IsSnapToTickEnabled="True" ValueChanged="sliderRectangles_ValueChanged"
+                    Grid.Column="3"/>
+
+            <Grid x:Name="internlabel" Grid.Column="0">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label x:Name="labelLeftHand" Content="Left" Width="50" Height="25" 
+               VerticalAlignment="Bottom" HorizontalAlignment="Left"
+               Grid.Row="0"/>
+                <Label x:Name="labelLeftHand_" Content="Info displayed here" Width="300" Height="25" 
+               VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="55,0,0,0.4"
+               Grid.Row="0"/>
+
+                <Label x:Name="labelRightHand" Content="Right" Width="50" Height="25
+               " VerticalAlignment="Bottom" HorizontalAlignment="Left" 
+               Grid.Row="1"/>
+                <Label x:Name="labelRightHand_" Content="Info displayed here" Width="300" Height="25
+               " VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="55,0,0,0.4"
+               Grid.Row="1"/>
+
+            </Grid>
+            
+        </Grid>
+
     </Grid>
 </Window>

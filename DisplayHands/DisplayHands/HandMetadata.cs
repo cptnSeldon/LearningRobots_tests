@@ -10,23 +10,21 @@ namespace DisplayHands
     {
 
         #region ATTRIBUTES
-        public int[] LeftHandPosition { get; set; }
-        public int[] RightHandPosition { get; set; }
+        public double[] LeftHandPosition { get; set; }
+        public double[] RightHandPosition { get; set; }
        #endregion ATTRIBUTES
 
         public HandMetadata()
         {
-            LeftHandPosition = new int[2];  //coordinates: x, y 
-            RightHandPosition = new int[2]; //coordinates: x, y
+            LeftHandPosition = new double[2];  //coordinates: x, y 
+            RightHandPosition = new double[2]; //coordinates: x, y
         }
 
-        public HandMetadata(int[] left, int[] right)
+        public HandMetadata(double[] left, double[] right)
         {
             LeftHandPosition = left;
             RightHandPosition = right;
         }
-
-        
 
     }
 }

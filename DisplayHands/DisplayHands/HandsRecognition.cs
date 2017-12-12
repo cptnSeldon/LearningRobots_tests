@@ -64,7 +64,6 @@ namespace DisplayHands
             for (int i = 0; i < numOfHands; i++)
             {
                 
-
                 #region GET HAND BY TIME OF APPEARANCE
                 if (handOutput.QueryHandData(PXCMHandData.AccessOrderType.ACCESS_ORDER_BY_TIME, i, out PXCMHandData.IHand handData) == pxcmStatus.PXCM_STATUS_NO_ERROR)
                 {
@@ -527,14 +526,8 @@ namespace DisplayHands
                 }
 
             }
-
-            /*if (gestureStatusLeft == String.Empty)
-                labelLeftHand = "Frame " + frameNumber + ") " + gestureStatusRight;
-            else
-                labelRightHand = "Frame " + frameNumber + ") " + gestureStatusLeft + ", " + gestureStatusRight;*/
      
         }
-
 
         private HandMetadata getMetaData(PXCMHandData data)
         {
@@ -546,7 +539,7 @@ namespace DisplayHands
 
             PXCMPointF32 rightPosition = rightHand?.QueryMassCenterImage() ?? new PXCMPointF32();
 
-            return new HandMetadata(new int[] { (int)leftPosition.x, (int)leftPosition.y}, new int[] { (int)rightPosition.x, (int)rightPosition.y });
+            return new HandMetadata(new double[] { leftPosition.x, leftPosition.y}, new double[] { rightPosition.x, rightPosition.y });
         }
     }
 }
