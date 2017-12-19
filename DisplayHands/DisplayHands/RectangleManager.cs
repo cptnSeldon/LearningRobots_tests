@@ -16,6 +16,7 @@ namespace DisplayHands
         ProbabilityManager probabilityManager = new ProbabilityManager();
         #endregion ATTRIBUTES
 
+        //constructor
         public RectangleManager(int rectanglesToCreate)
         {
             int x = 50;
@@ -30,21 +31,25 @@ namespace DisplayHands
             }
         }
 
+        //destroy all the rectangles contained in the list
         public void DestroyAll()
         {
             rectangles.Clear();
         }
 
+        //get a rectangle's center
         public PointF GetCenter(Rectangle r)
         {
             return new PointF(r.X + (r.Width / 2), r.Y + (r.Height / 2));
         }
 
+        //get rectangle at a certain index
         public Rectangle GetRectangleAt(int index)
         {
             return rectangles.ElementAt(index);
         }
 
+        //get total distances from each hand to each boxes
         public List<double> GetTotalDistances(HandMetadata handMetadata)
         {
             double leftX = handMetadata.LeftHandPosition[0];
@@ -70,11 +75,13 @@ namespace DisplayHands
             return totalDistances;
         }
 
+        //get all rectangles from the list
         public List<Rectangle> GetAll()
         {
             return rectangles;
         }
 
+        //calculate the distance from both hands to a rectangle
         public List<double> CalculateDistance(HandMetadata handMetadata, Rectangle r)
         {
             //hand center

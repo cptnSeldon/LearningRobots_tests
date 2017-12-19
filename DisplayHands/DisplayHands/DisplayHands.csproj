@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DrawingManager.cs" />
+    <Compile Include="History.cs" />
     <Compile Include="ProbabilityManager.cs" />
     <Compile Include="RectangleManager.cs" />
     <Page Include="MainWindow.xaml">
