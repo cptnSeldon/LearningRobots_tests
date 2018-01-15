@@ -5,11 +5,17 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DisplayHands
 {
     class DrawingManager
     {
+        #region ATTRIBUTES
+        public int scale = 2;
+        #endregion ATTRIBUTES
+
         //constructor
         public DrawingManager() { }
 
@@ -27,20 +33,20 @@ namespace DisplayHands
         public void DrawHistory(Bitmap bitmap, History history)
         {
             Graphics g = Graphics.FromImage(bitmap);
-            System.Drawing.Pen penLeft = new System.Drawing.Pen(System.Drawing.Color.Red, 3.0f);
-            System.Drawing.Pen penRight = new System.Drawing.Pen(System.Drawing.Color.Blue, 3.0f);
+            Pen penLeft = new Pen(Color.Red, 3.0f);
+            Pen penRight = new Pen(Color.Blue, 3.0f);
 
             IList<HandMetadata> historyList = history.GetList();
 
             {
-                System.Drawing.Point[] leftPoints = new System.Drawing.Point[historyList.Count];
+                Point[] leftPoints = new Point[historyList.Count];
 
-                System.Drawing.Point[] rightPoints = new System.Drawing.Point[historyList.Count];
+                Point[] rightPoints = new Point[historyList.Count];
 
                 for (int i = 0; i < historyList.Count; i++)
                 {
-                    leftPoints[i] = new System.Drawing.Point((int)historyList[i].LeftHandPosition[0], (int)historyList[i].LeftHandPosition[1]);
-                    rightPoints[i] = new System.Drawing.Point((int)historyList[i].RightHandPosition[0], (int)historyList[i].RightHandPosition[1]);
+                    leftPoints[i] = new Point((int)historyList[i].LeftHandPosition[0], (int)historyList[i].LeftHandPosition[1]);
+                    rightPoints[i] = new Point((int)historyList[i].RightHandPosition[0], (int)historyList[i].RightHandPosition[1]);
                 }
 
                 if (leftPoints.Last().X + leftPoints.Last().Y > 0)
@@ -50,42 +56,18 @@ namespace DisplayHands
             }
         }
 
-        public double[][] CalculateNaiveVector(int scale, History history)
-        {
-
-            IList<HandMetadata> historyList = history.GetList();
-
-            if (historyList.Count > history.MaxHistory - 1)
-            {
-                double[][] leftPoints = new double[2][];
-                double[][] rightPoints = new double[2][];
-
-                leftPoints[1] = new double[] { historyList[historyList.Count - 1].LeftHandPosition[0], historyList[historyList.Count - 1].LeftHandPosition[1] };
-                rightPoints[1] = new double[] { historyList[historyList.Count - 1].RightHandPosition[0], historyList[historyList.Count - 1].RightHandPosition[1] };
-                leftPoints[0] = new double[] { historyList[0].LeftHandPosition[0], historyList[0].LeftHandPosition[1] };
-                rightPoints[0] = new double[] { historyList[0].RightHandPosition[0], historyList[0].RightHandPosition[1] };
-
-                double[][] vector = new double[2][];
-
-                vector[0] = new double[] { (leftPoints[1][0] - leftPoints[0][0]) * scale, (leftPoints[1][1] - leftPoints[0][1]) * scale };
-                vector[1] = new double[] { (rightPoints[1][0] - rightPoints[0][0]) * scale, (rightPoints[1][1] - rightPoints[0][1]) * scale };
-
-                return vector;
-            }
-                return null;
-        }
-
         //VECTOR
         public void DrawVector(Bitmap bitmap, HandMetadata handMetadata, History history)
         {
+            Utils utils = new Utils();
             //vector = 0B - 0A
-            double[][] v = CalculateNaiveVector(2, history);
+            double[][] v = utils.CalculateNaiveVector(scale, history);
 
             if (v != null)
             {
                 Graphics g = Graphics.FromImage(bitmap);
-                System.Drawing.Pen penLeft = new System.Drawing.Pen(System.Drawing.Color.Red, 3.0f);
-                System.Drawing.Pen penRight = new System.Drawing.Pen(System.Drawing.Color.Blue, 3.0f);
+                Pen penLeft = new Pen(Color.Red, 3.0f);
+                Pen penRight = new Pen(Color.Blue, 3.0f);
 
                 double leftX = handMetadata.LeftHandPosition[0];
                 double leftY = handMetadata.LeftHandPosition[1];
@@ -95,20 +77,22 @@ namespace DisplayHands
                 //v[left or right][point1 or point2][x or y]
                 if (leftX + leftY > 0)
                 {
-                    g.DrawLine(penLeft, new System.Drawing.Point((int)leftX, (int)leftY), new System.Drawing.Point((int)leftX + (int)v[0][0], (int)leftY + (int)v[0][1]));
+                    g.DrawLine(penLeft, new Point((int)leftX, (int)leftY), new Point((int)leftX + (int)v[0][0], (int)leftY + (int)v[0][1]));
                     g.DrawEllipse(penLeft, new RectangleF((float)leftX + (float)v[0][0], (float)leftY + (float)v[0][1], 5, 5));
                 }
 
                 if (rightX + rightY > 0)
                 {
-                    g.DrawLine(penRight, new System.Drawing.Point((int)rightX, (int)rightY), new System.Drawing.Point((int)rightX + (int)v[1][0], (int)rightY + (int)v[1][1]));
+                    g.DrawLine(penRight, new Point((int)rightX, (int)rightY), new Point((int)rightX + (int)v[1][0], (int)rightY + (int)v[1][1]));
                     g.DrawEllipse(penRight, new RectangleF((float)rightX + (float)v[1][0], (float)rightY + (float)v[1][1], 5, 5));
                 }
             }
         }
 
         //RECTANGLE MANAGER
-        public void Rectangles_DrawAll(Bitmap bitmap, HandMetadata handMetadata, RectangleManager rectangleManager)
+        public void Rectangles_DrawAll(Bitmap bitmap, HandMetadata handMetadata, RectangleManager rectangleManager, 
+            State currentStateLeft, State currentStateRight ,
+            int leftRectangle, int rightRectangle, int directedRectangle)
         {
             if (rectangleManager != null)
             {
@@ -117,7 +101,7 @@ namespace DisplayHands
                 if (rectangles != null)
                 {
                     Graphics g = Graphics.FromImage(bitmap);
-                    Pen p = new Pen(Color.Black);
+
                     char sequence = 'A';
 
                     double leftX = handMetadata.LeftHandPosition[0];
@@ -125,9 +109,9 @@ namespace DisplayHands
                     double rightX = handMetadata.RightHandPosition[0];
                     double rightY = handMetadata.RightHandPosition[1];
 
-                    foreach (Rectangle r in rectangles)
+                    for (int i = 0; i < rectangles.Count; i++)
                     {
-                        List<double> distances = rectangleManager.CalculateDistance(handMetadata, r);
+                        List<double> distances = rectangleManager.CalculateDistance(handMetadata, rectangles[i]);
                         #region TEXT
                         Font drawFont = new Font("Arial", 10);
                         SolidBrush drawBrush = new SolidBrush(Color.White);
@@ -141,28 +125,71 @@ namespace DisplayHands
                         g.ScaleTransform(-1, 1);
 
                         //sequence
-                        g.TranslateTransform(r.X + (r.Width / 2) + (drawFont.Size / 2), r.Y - 20, MatrixOrder.Append);
+                        g.TranslateTransform(rectangles[i].X + (rectangles[i].Width / 2) + (drawFont.Size / 2), rectangles[i].Y - 20, MatrixOrder.Append);
                         g.DrawString(sequence.ToString(), drawFont, drawBrush, 0, 0);
                         sequence += (char)1;
 
                         //left
                         if (leftX + leftY > 0)
-                            g.DrawString(("L " + (int)distances.First()).ToString(), drawFontD, drawBrushD, 0, (r.Height / 2) - drawFontD.Size);
+                            g.DrawString(("L " + (int)distances.First()).ToString(), drawFontD, drawBrushD, 0, (rectangles[i].Height / 2) - drawFontD.Size);
 
                         //right
                         if (rightX + rightY > 0)
-                            g.DrawString(("R " + (int)distances.Last()).ToString(), drawFontD, drawBrushD, 0, (r.Height / 2) + drawFontD.Size);
+                            g.DrawString(("R " + (int)distances.Last()).ToString(), drawFontD, drawBrushD, 0, (rectangles[i].Height / 2) + drawFontD.Size);
 
                         //probability: distance
 
 
                         g.Restore(state);
                         #endregion TEXT
-                        g.DrawRectangle(p, r);
+
+                        Pen pen = new Pen(Color.Black, 5);    //undefined
+
+                        switch (currentStateLeft)
+                        {
+                            case State.SUCCESS:
+                                if(leftRectangle == i)
+                                    pen = new Pen(Color.Green, 5);
+                                break;
+                            case State.OK:
+                                if (directedRectangle == i)
+                                    pen = new Pen(Color.Blue, 5);
+                                break;
+                            case State.WARNING:
+                                if (directedRectangle == i)
+                                    pen = new Pen(Color.Orange, 5);
+                                break;
+                            case State.ERROR:
+                                if (leftRectangle == i)
+                                    pen = new Pen(Color.Red, 5);
+                                break;
+                        }
+
+                        switch (currentStateRight)
+                        {
+                            case State.SUCCESS:
+                                if (rightRectangle == i)
+                                    pen = new Pen(Color.Green, 5);
+                                break;
+                            case State.OK:
+                                if (directedRectangle == i)
+                                    pen = new Pen(Color.Blue, 5);
+                                break;
+                            case State.WARNING:
+                                if (directedRectangle == i)
+                                    pen = new Pen(Color.Orange, 5);
+                                break;
+                            case State.ERROR:
+                                if (rightRectangle == i)
+                                    pen = new Pen(Color.Red, 5);
+                                break;
+                        }
+
+                        g.DrawRectangle(pen, rectangles[i]);
                     }
                 }
             }
-            
         }
+        
     }
 }

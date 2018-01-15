@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 
 namespace DisplayHands
 {
+
     class RectangleManager
     {
         #region ATTRIBUTES
@@ -106,6 +107,44 @@ namespace DisplayHands
             distances.Add(right_distance);
 
             return distances;
+        }
+
+        //current -> Sequence Manager: x,y -> point
+        public int GetPointInRectangle(double x, double y)
+        {
+            //for each rectangle check if point contained in X, return X's index, -1 otherwise
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                if (isPointInRectangle(x, y, new double[4, 2] {
+                    //00 - 01
+                    { (double) rectangles[i].X, (double) rectangles[i].Y }
+                    //10 - 11
+                   ,{ (double) (rectangles[i].X + rectangles[i].Width), (double)rectangles[i].Y}
+                    //20 - 21
+                   ,{ (double) (rectangles[i].X + rectangles[i].Width), (double) (rectangles[i].Y + rectangles[i].Height)}
+                    //30 - 31
+                    ,{ (double) rectangles[i].X, (double) (rectangles[i].Y + rectangles[i].Height) } }))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        //directed -> Sequence Manager
+        public int GetPointInRectangle(double[][] vector)
+        {
+            //TODO: for each rectangle if vector goes towards X, return X's index, -1 otherwise
+            Utils utils = new Utils();
+
+
+
+            return -1;
+        }
+
+        //checks if point is contained in rectangle 
+        private bool isPointInRectangle(double x, double y, double[,] rectangle)
+        {
+            return x > rectangle[0, 0] && x < rectangle[1, 0] && y > rectangle[0 , 1] && y< rectangle[2,1];
         }
     }
 }

@@ -250,8 +250,9 @@ namespace DisplayHands
 
         }
 
-        public void SimplePipeline()
+        public void SimplePipeline(string filename, bool isRecord)
         {
+            
             Console.WriteLine("Started pipeline");
             bool liveCamera = false;
 
@@ -265,6 +266,10 @@ namespace DisplayHands
                 return;
             }
 
+            //check if recording or not
+            if (!string.IsNullOrEmpty(filename))
+                instance.captureManager.SetFileName(filename, isRecord);
+            
             PXCMCaptureManager captureManager = instance.captureManager;
             PXCMCapture.DeviceInfo info = null;
             if (captureManager != null)
@@ -522,11 +527,8 @@ namespace DisplayHands
                         Console.WriteLine("Gesture: " + gestureStatusRight);
 
                     }
-
                 }
-
             }
-     
         }
 
         private HandMetadata getMetaData(PXCMHandData data)

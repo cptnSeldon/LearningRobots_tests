@@ -35,8 +35,5 @@ namespace DisplayHands
 
             return probabilities;
         }
-
-        //using vectors
-
     }
 }

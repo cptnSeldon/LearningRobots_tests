@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
+using Microsoft.Win32;
 
 namespace DisplayHands
 {
@@ -32,7 +33,15 @@ namespace DisplayHands
         private HandMetadata lastHandMetadata;
         private RectangleManager rectangleManager;
         private DrawingManager drawingManager;
+        private SequenceManager sequenceManager;
+        private Utils utils;
+        private State currentStateLeft;
+        private State currentStateRight;
+        private int directedRectangle;
+        private int leftRectIndex;
+        private int rightRectIndex;
         private History history = new History();
+        private String filename = null;
         #endregion ATTRIBUTES
 
 
@@ -40,6 +49,8 @@ namespace DisplayHands
         {
             InitializeComponent();
             buttonStart.Content = "Start";
+            sliderRectangles.IsEnabled = false;
+            rectangleManager = new RectangleManager(0);
         }
 
         #region USER EVENT MANAGER
@@ -50,20 +61,33 @@ namespace DisplayHands
                 started = true;
                 buttonStart.Content = "Stop";
                 Console.WriteLine("start");
+
+                sequenceManager = new SequenceManager();
+                drawingManager = new DrawingManager();
+
                 recognition = new HandsRecognition();
                 recognition.NewDataEvent += Recognition_NewDataEvent;
                 recognition.NewRGBImageEvent += Recognition_NewRGBImageEvent;
-                new Thread(()=>recognition.SimplePipeline()).Start();
+
+                bool check = Record.IsChecked;
+                Record.IsEnabled = false;
+
+                new Thread(()=>recognition.SimplePipeline(filename, check)).Start();
+
+                sliderRectangles.IsEnabled = true;
             }
             else
             {
                 recognition.NewDataEvent -= Recognition_NewDataEvent;
                 recognition.NewRGBImageEvent -= Recognition_NewRGBImageEvent;
+                sliderRectangles.IsEnabled = false;
                 buttonStart.Content = "Start";
                 started = false;
+
                 Console.WriteLine("stop");
                 recognition.SignalStop();
-                  
+                Record.IsChecked = false;
+                Record.IsEnabled = true;
             }
         }
 
@@ -72,6 +96,18 @@ namespace DisplayHands
             if (rectangleManager != null)
                 rectangleManager.DestroyAll();
             rectangleManager = new RectangleManager((int)sliderRectangles.Value);
+
+            #region SEQUENCE INITIALIZATION
+            if ((int) sliderRectangles.Value == 0)
+                sequenceManager.GenerateSequence(0, 1);
+            else
+                sequenceManager.GenerateSequence((int)sliderRectangles.Value, (int)sliderRectangles.Value);
+
+            currentStateLeft = State.UNDEFINED;
+            currentStateRight = State.UNDEFINED;
+
+            sequenceManager.PrintSequence();
+            #endregion SEQUENCE INITIALIZATION
         }
         #endregion USER EVENT MANAGER
 
@@ -84,6 +120,32 @@ namespace DisplayHands
         private void Recognition_NewDataEvent(PXCMHandData data, int frameNumber, HandMetadata handMetadata)
         {
             this.Dispatcher.Invoke(()=>SaveData(data,frameNumber, handMetadata));
+
+            utils = new Utils();
+
+            #region SEQUENCE MANAGEMENT
+            directedRectangle = -1;
+            //check if direction vector is contained in one of the rectangles
+            if (utils.CalculateNaiveVector(drawingManager.scale, history) != null)
+                directedRectangle = rectangleManager.GetPointInRectangle(utils.CalculateNaiveVector(drawingManager.scale, history));
+            leftRectIndex = -1;
+            rightRectIndex = -1;
+            //check if hand is contained in one of the rectangles
+            if (lastHandMetadata.LeftHandPosition[0] + lastHandMetadata.LeftHandPosition[1] > 0)
+                leftRectIndex = rectangleManager.GetPointInRectangle(lastHandMetadata.LeftHandPosition[0], lastHandMetadata.LeftHandPosition[1]);
+            if (lastHandMetadata.RightHandPosition[0] + lastHandMetadata.RightHandPosition[1] > 0)
+                rightRectIndex = rectangleManager.GetPointInRectangle(lastHandMetadata.RightHandPosition[0], lastHandMetadata.RightHandPosition[1]);
+
+            Console.WriteLine(rightRectIndex + ", " + directedRectangle);
+
+            //test if sequense is ok
+            currentStateLeft = sequenceManager.GetState(leftRectIndex, directedRectangle, true);
+            currentStateRight = sequenceManager.GetState(rightRectIndex, directedRectangle, false);
+
+            Console.WriteLine("Current rectangle: " + sequenceManager.GetCurrent());
+
+            Console.WriteLine("Left: " + currentStateLeft + "\nRight: " + currentStateRight);
+            #endregion SEQUENCE MANAGEMENT
         }
         #endregion EVENT
 
@@ -98,12 +160,13 @@ namespace DisplayHands
 
         private void DrawRGBImage(Bitmap bitmap)
         {
-            drawingManager = new DrawingManager();
             //mirror
             image.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
-            ScaleTransform scaleTransform = new ScaleTransform();
-            scaleTransform.ScaleX = -1;
-            scaleTransform.ScaleY = 1;
+            ScaleTransform scaleTransform = new ScaleTransform
+            {
+                ScaleX = -1,
+                ScaleY = 1
+            };
             image.RenderTransform = scaleTransform;
 
             labelLeftHand_.Content = $"{lastHandMetadata.LeftHandPosition[0]}, {lastHandMetadata.LeftHandPosition[1]}";
@@ -113,7 +176,7 @@ namespace DisplayHands
             drawingManager.DrawHands(bitmap, recognition, lastData, lastFrameNumber);
             drawingManager.DrawHistory(bitmap, history);
             drawingManager.DrawVector(bitmap, lastHandMetadata, history);
-            drawingManager?.Rectangles_DrawAll(bitmap, lastHandMetadata, rectangleManager);
+            drawingManager?.Rectangles_DrawAll(bitmap, lastHandMetadata, rectangleManager, currentStateLeft, currentStateRight, leftRectIndex, rightRectIndex, directedRectangle);
 
             image.Source = BitmapToImageSource(bitmap);
         }
@@ -133,6 +196,56 @@ namespace DisplayHands
                 return bitmapimage;
             }
         }
+
+        #region MENU
+        private void Record_Click(object sender, RoutedEventArgs e)
+        {
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
+                CheckPathExists = true,
+                OverwritePrompt = true
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+                filename = saveFileDialog.FileName;
+        }
+
+        private void Replay_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
+                CheckFileExists = true,
+                CheckPathExists = true
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+                filename = openFileDialog.FileName;
+        }
+
+        private void JSON_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AppExit_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Do you want to quit the application?", "Quit", MessageBoxButton.OK, MessageBoxImage.Information);
+            Application.Current.Shutdown();
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(this, "" +
+                "Developped by Julia Németh, 3dlma\n" +
+                "HE-ARC, Fall semester, January 2018",
+                "About Learning Robots", MessageBoxButton.OK, MessageBoxImage.Information
+                );
+        }
+        #endregion MENU
 
         
     }

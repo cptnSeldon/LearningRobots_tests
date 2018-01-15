@@ -5,24 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DisplayHands"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="600" MinWidth="800">
+        Title="Learning Robots: Sequences recognition" 
+        MinHeight="600" MinWidth="800"
+        Background="LightSlateGray">
+    <!--#region MAIN GRID-->
     <Grid x:Name="grid">
 
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="mainRow" Height="10*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="10*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="mainCol"/>
-        </Grid.ColumnDefinitions>
+        <!--#region MENU-->
+        <Menu Width="Auto" Height="20" Grid.Row="0" VerticalAlignment="Top">
+            <MenuItem Header="_Options">
+                <MenuItem x:Name="Record" Header="_Record" Click="Record_Click" IsCheckable="True"/>
+                <MenuItem x:Name="Replay" Header="_Replay" Click="Replay_Click"/>
+                <Separator/>
+                <MenuItem x:Name="SaveJSON" Header="Save _JSON" Click="JSON_Click"/>
+                <Separator/>
+                <MenuItem x:Name="AppExit" Header="E_xit"  Click="AppExit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem x:Name="About" Header="_About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+        <!--#endregion MENU-->
 
-        <Canvas x:Name="canvas" Grid.Row="0" ClipToBounds="True" Height="{Binding Path=ActualHeight, ElementName=grid}" Width="{Binding Path=ActualWidth, ElementName=grid}"
-                HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Image x:Name="image" Grid.Row="0" Height="{Binding Path=ActualHeight, ElementName=canvas}" Width="{Binding Path=ActualWidth, ElementName=canvas}" />
-        </Canvas>
-
+        <Grid x:Name="canvasGrid" Grid.Row="1" Background="DarkGray">
+            <Canvas x:Name="canvas" ClipToBounds="True"
+                Height="{Binding Path=ActualHeight, ElementName=canvasGrid}" 
+                Width="{Binding Path=ActualWidth, ElementName=grid}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Image x:Name="image" Grid.Row="0" Height="{Binding Path=ActualHeight, ElementName=canvas}" Width="{Binding Path=ActualWidth, ElementName=canvas}" />
+            </Canvas>
+        </Grid>
+        
+        <!--#region BASIC INTERACTIONS-->
         <Grid x:Name="intern" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -33,10 +53,24 @@
             <Button x:Name="buttonStart" Content="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="Button_Click" Height="26"
                 Grid.Column="1"/>
 
-            <Slider x:Name="sliderRectangles" TickFrequency="1" TickPlacement="BottomRight" Minimum="0" Maximum="5" VerticalAlignment="Center" 
-                    IsSnapToTickEnabled="True" ValueChanged="sliderRectangles_ValueChanged"
-                    Grid.Column="3"/>
+            <Grid x:Name="internSequences" Grid.Column="3">
 
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <Slider x:Name="sliderRectangles" TickFrequency="1" TickPlacement="BottomRight" Minimum="0" Maximum="5" VerticalAlignment="Center" 
+                    IsSnapToTickEnabled="True" ValueChanged="sliderRectangles_ValueChanged"
+                    Grid.Row="0" Margin="50,0,50,0"/>
+
+                <TextBox x:Name="inputSequence" VerticalAlignment="Center" Grid.Row="1" Margin="55,0,55,0">
+                    ABCDE
+                </TextBox>
+            </Grid>
+            
+
+            <!--#region LABELS-->
             <Grid x:Name="internlabel" Grid.Column="0">
 
                 <Grid.RowDefinitions>
@@ -44,23 +78,27 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
+                <!--#region LEFT-->
                 <Label x:Name="labelLeftHand" Content="Left" Width="50" Height="25" 
                VerticalAlignment="Bottom" HorizontalAlignment="Left"
                Grid.Row="0"/>
                 <Label x:Name="labelLeftHand_" Content="Info displayed here" Width="300" Height="25" 
                VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="55,0,0,0.4"
                Grid.Row="0"/>
+                <!--#endregion LEFT-->
 
+                <!--#region RIGHT-->
                 <Label x:Name="labelRightHand" Content="Right" Width="50" Height="25
                " VerticalAlignment="Bottom" HorizontalAlignment="Left" 
                Grid.Row="1"/>
                 <Label x:Name="labelRightHand_" Content="Info displayed here" Width="300" Height="25
                " VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="55,0,0,0.4"
                Grid.Row="1"/>
-
+                <!--#endregion RIGHT-->
             </Grid>
-            
+            <!--#endregion LABELS-->
         </Grid>
-
+        <!--#endregion BASIC INTERACTIONS-->
     </Grid>
+    <!--#endregion MAIN GRID-->
 </Window>
