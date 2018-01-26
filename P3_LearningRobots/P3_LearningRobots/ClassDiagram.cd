@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="P3_LearningRobots.HandsRecognition">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAEACAABAGAACAAEAIAAQwAQCAAAAAAAACAABAAA=</HashCode>
+      <FileName>Camera and recognition\HandsRecognition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.HandMetadata">
+    <Position X="12.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAEgAAAAAAAAAAAAA=</HashCode>
+      <FileName>Data\HandMetadata.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.History">
+    <Position X="12.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAIAAAAAAAAAAAAAAAAAAAAAAAAQAAgAAAAAAAgI=</HashCode>
+      <FileName>Data\History.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.Data.JSONHandler">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Data\JSONHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.DrawingManager">
+    <Position X="0.5" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAIAAAAICAgAAAAAABAAgABIAAAA=</HashCode>
+      <FileName>Managers\DrawingManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.RectangleManager">
+    <Position X="2.75" Y="2.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAEAIAAAAAAAEAAAAAAAAAAAAAAAAAAAAgAEABIAAAA=</HashCode>
+      <FileName>Managers\RectangleManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.SequenceManager">
+    <Position X="10" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AASQAEAIAAQpCBAACAAAQAgAAAAAAAAAARAAAAAAAAA=</HashCode>
+      <FileName>Managers\SequenceManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.Utils">
+    <Position X="0.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAgAAAAAAAAAAAAAIAAAAAAAQAAAACCAAAA=</HashCode>
+      <FileName>Utility\Utils.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.ConvertBitmap" Collapsed="true">
+    <Position X="12.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEAAAMAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>Tools\ConvertBitmap.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.FPSTimer" Collapsed="true">
+    <Position X="12.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABACAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAAAQgA=</HashCode>
+      <FileName>Tools\FPSTimer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="P3_LearningRobots.MainWindow">
+    <Position X="5" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAIAAmBBRgQAADAAgABQAgBUAAAQAQAACAICAEABIzA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Enum Name="P3_LearningRobots.State">
+    <Position X="10.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACBAAAAAAAgAAAAEAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Managers\SequenceManager.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

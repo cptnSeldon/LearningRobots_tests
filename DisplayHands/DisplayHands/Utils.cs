@@ -36,5 +36,29 @@ namespace DisplayHands
             return null;
         }
 
+        public double[][] CalculateVector(double[][] rectangleCenter, History history)
+        {
+
+            IList<HandMetadata> historyList = history.GetList();
+
+            if (historyList.Count > 0)
+            {
+                
+                double[][] leftPoints = new double[1][];
+                double[][] rightPoints = new double[1][];
+
+                leftPoints[0] = new double[] { historyList[0].LeftHandPosition[0], historyList[0].LeftHandPosition[1] };
+                rightPoints[0] = new double[] { historyList[0].RightHandPosition[0], historyList[0].RightHandPosition[1] };
+
+                double[][] vector = new double[2][];
+
+                vector[0] = new double[] { leftPoints[0][0], rectangleCenter[0][0] };
+                vector[1] = new double[] { rightPoints[0][0], rectangleCenter[0][0]};
+
+                return vector;
+            }
+            return null;
+        }
+
     }
 }

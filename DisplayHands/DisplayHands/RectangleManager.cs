@@ -15,6 +15,7 @@ namespace DisplayHands
         private List<Rectangle> rectangles = new List<Rectangle>();
         private List<double> totalDistances = new List<double>();
         ProbabilityManager probabilityManager = new ProbabilityManager();
+
         #endregion ATTRIBUTES
 
         //constructor

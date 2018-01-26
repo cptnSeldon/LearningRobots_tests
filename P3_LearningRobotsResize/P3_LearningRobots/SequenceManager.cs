@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DisplayHands
+namespace P3_LearningRobots
 {
-
+    
     enum State
     {
         UNDEFINED,
@@ -23,10 +22,14 @@ namespace DisplayHands
 
         //sequence list: initilized by user input -> default = A-B-C-D-E depending on rectangles created
         List<int> sequence = new List<int>();
-        SequenceData data = new SequenceData();
         IEnumerator<int> iterator;
         State currentStateRight;
         State currentStateLeft;
+
+        public int SequenceCounter { get { return sequenceCounter; } set { sequenceCounter = value; } }
+        private int sequenceCounter;
+        public int ErrorCounter { get { return errorCounter; } set { errorCounter = value; } }
+        private int errorCounter;
 
         #endregion ATTRIBUTES
 
@@ -34,14 +37,15 @@ namespace DisplayHands
         public SequenceManager()
         {
             iterator = sequence.GetEnumerator();
-            data.SequenceFromApp = "";
+            SequenceCounter = 0;
+            ErrorCounter = 0;
         }
 
         //set sequence
         public void SetSequence(List<int> initialSequence)
         {
             //if null or empty -> false
-            if(!(initialSequence?.Any() ?? false))
+            if (!(initialSequence?.Any() ?? false))
             {
                 sequence = new List<int>(initialSequence);
                 iterator = sequence.GetEnumerator();
@@ -89,21 +93,23 @@ namespace DisplayHands
         }
 
         //Generates default sequence for now
-        public void GenerateSequence(int numberOfRectangle, int numberOfSequence)
+        public void GenerateSequence(int numberOfRectangle, int numberOfSequence, String inputSequence)
         {
             sequence.Clear();
 
-            if (data.SequenceFromApp != "")
-                sequence = GetInputSequence(numberOfRectangle);
+            if (inputSequence != "")
+                sequence = GetInputSequence(numberOfRectangle, inputSequence);
             else
             {
-                for (int i = 0; i < numberOfSequence ; i++)
+                for (int i = 0; i < numberOfSequence; i++)
                 {
-                    sequence.Add(i % numberOfRectangle);
+                    if (numberOfRectangle != 0)
+                        sequence.Add(i % numberOfRectangle);
                 }
             }
 
             iterator = sequence.GetEnumerator();
+            iterator.MoveNext();
         }
 
         //return sequence
@@ -124,25 +130,27 @@ namespace DisplayHands
         private void GoToNextValue()
         {
             //if current value is the last one in the sequence, go back to the first one
-            if (!(iterator?.MoveNext()??true)) //not (if null -> default: true)
+            if (!(iterator?.MoveNext() ?? true)) //not (if null -> default: true)
             {
                 iterator.Reset();
                 iterator.MoveNext();
+                SequenceCounter++;
             }
         }
 
         //get sequence from user input
-        public List<int> GetInputSequence(int rectangles)
+        public List<int> GetInputSequence(int rectangles, String inputSequence)
         {
-            String sequence = data.SequenceFromApp.ToLower();
             List<int> output = new List<int>();
 
-            foreach (char c in sequence)
+            inputSequence.ToLower();
+
+            foreach (char c in inputSequence)
             {
                 switch (c)
                 {
                     case 'a':
-                        if(rectangles > 0)
+                        if (rectangles > 0)
                             output.Add(0);
                         break;
                     case 'b':
@@ -168,6 +176,7 @@ namespace DisplayHands
 
             return output;
         }
-        
+
     }
+    
 }

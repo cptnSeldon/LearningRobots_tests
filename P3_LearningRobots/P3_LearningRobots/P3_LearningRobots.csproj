@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CFD3098E-9914-4871-BD3D-D086CFFF32B7}</ProjectGuid>
+    <ProjectGuid>{2485D2D2-0E9E-4E83-AACC-390636E07E47}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>DisplayHands</RootNamespace>
-    <AssemblyName>DisplayHands</AssemblyName>
+    <RootNamespace>P3_LearningRobots</RootNamespace>
+    <AssemblyName>P3_LearningRobots</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -23,7 +23,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,12 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="libpxcclr.cs, Version=10.0.26.396, Culture=neutral, PublicKeyToken=ca106b2214526f83, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Intel\RSSDK\bin\x64\libpxcclr.cs.dll</HintPath>
+    <Reference Include="libpxcclr.cs">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Intel\RSSDK\bin\x64\libpxcclr.cs.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\HES_2017-2018\2_P3_LearningRobots\IntelRealSense_git_repository\DisplayHands\packages\Newtonsoft.Json.9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -63,13 +61,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DrawingManager.cs" />
-    <Compile Include="History.cs" />
-    <Compile Include="ProbabilityManager.cs" />
-    <Compile Include="RectangleManager.cs" />
-    <Compile Include="SequenceData.cs" />
-    <Compile Include="SequenceManager.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Data\JSONHandler.cs" />
+    <Compile Include="Managers\DrawingManager.cs" />
+    <Compile Include="Managers\RectangleManager.cs" />
+    <Compile Include="Managers\SequenceManager.cs" />
+    <Compile Include="Utility\Utils.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -78,10 +74,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConvertBitmap.cs" />
-    <Compile Include="FPSTimer.cs" />
-    <Compile Include="HandMetadata.cs" />
-    <Compile Include="HandsRecognition.cs" />
+    <Compile Include="Tools\ConvertBitmap.cs" />
+    <Compile Include="Tools\FPSTimer.cs" />
+    <Compile Include="Data\HandMetadata.cs" />
+    <Compile Include="Camera and recognition\HandsRecognition.cs" />
+    <Compile Include="Data\History.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -105,6 +102,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -113,9 +111,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Sources\hesso.gif" />
+    <Resource Include="Sources\hearc.png" />
+    <Content Include="Sources\wrongAnswer.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if "$(Platform)" == "x86" ( copy /y "$(RSSDK_DIR)\bin\win32\libpxccpp2c.dll" "$(TargetDir)" ) else ( copy /y "$(RSSDK_DIR)\bin\x64\libpxccpp2c.dll" "$(TargetDir)" )
-</PostBuildEvent>
-  </PropertyGroup>
 </Project>

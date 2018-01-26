@@ -54,7 +54,7 @@ namespace DisplayHands
         }
 
         #region USER EVENT MANAGER
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             if (!started)
             {
@@ -109,6 +109,60 @@ namespace DisplayHands
             sequenceManager.PrintSequence();
             #endregion SEQUENCE INITIALIZATION
         }
+
+        #region MENU
+        private void Record_Click(object sender, RoutedEventArgs e)
+        {
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
+                CheckPathExists = true,
+                OverwritePrompt = true
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+                filename = saveFileDialog.FileName;
+        }
+
+        private void Replay_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
+                CheckFileExists = true,
+                CheckPathExists = true
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+                filename = openFileDialog.FileName;
+        }
+
+        private void JSON_Click(object sender, RoutedEventArgs e)
+        {
+            //https://www.newtonsoft.com/json/help/html/Introduction.htm
+
+           
+
+        }
+
+        private void AppExit_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Do you want to quit the application?", "Quit", MessageBoxButton.OK, MessageBoxImage.Information);
+            Application.Current.Shutdown();
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(this, "" +
+                "Developped by Julia Németh, 3dlma\n" +
+                "HE-ARC, Fall semester, January 2018",
+                "About Learning Robots", MessageBoxButton.OK, MessageBoxImage.Information
+                );
+        }
+        #endregion MENU
+
         #endregion USER EVENT MANAGER
 
         #region EVENT
@@ -196,57 +250,6 @@ namespace DisplayHands
                 return bitmapimage;
             }
         }
-
-        #region MENU
-        private void Record_Click(object sender, RoutedEventArgs e)
-        {
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
-                CheckPathExists = true,
-                OverwritePrompt = true
-            };
-
-            if (saveFileDialog.ShowDialog() == true)
-                filename = saveFileDialog.FileName;
-        }
-
-        private void Replay_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = @"RSSDK clip|*.rssdk|All files|*.*",
-                CheckFileExists = true,
-                CheckPathExists = true
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-                filename = openFileDialog.FileName;
-        }
-
-        private void JSON_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AppExit_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Do you want to quit the application?", "Quit", MessageBoxButton.OK, MessageBoxImage.Information);
-            Application.Current.Shutdown();
-        }
-
-        private void About_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(this, "" +
-                "Developped by Julia Németh, 3dlma\n" +
-                "HE-ARC, Fall semester, January 2018",
-                "About Learning Robots", MessageBoxButton.OK, MessageBoxImage.Information
-                );
-        }
-        #endregion MENU
-
-        
+ 
     }
 }

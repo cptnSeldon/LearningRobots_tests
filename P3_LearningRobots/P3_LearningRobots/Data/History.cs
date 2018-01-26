@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DisplayHands
+namespace P3_LearningRobots
 {
-    class History
+    public class History
     {
         #region ATTRIBUTES
         private IList<HandMetadata> history;
@@ -25,6 +23,11 @@ namespace DisplayHands
         //retrieve current history
         public IList<HandMetadata> GetList()
         {
+            return new List<HandMetadata>(history.Skip(Math.Max(0, history.Count - MaxHistory)));
+        }
+
+        public IList<HandMetadata> GetAll()
+        {
             return new List<HandMetadata>(history);
         }
 
@@ -33,10 +36,6 @@ namespace DisplayHands
         {
             lock (lockHistory)
             {
-                if (history.Count == MaxHistory)
-                {
-                    history.RemoveAt(0);
-                }
                 history.Add(handMetadata);  //adds at end of list
             }
         }

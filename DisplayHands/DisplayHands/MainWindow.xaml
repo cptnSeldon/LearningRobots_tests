@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DisplayHands"
         mc:Ignorable="d"
-        Title="Learning Robots: Sequences recognition" 
+        Title="HE-ARC Autumn project - Learning Robots: Sequences recognition" 
         MinHeight="600" MinWidth="800"
         Background="LightSlateGray">
     <!--#region MAIN GRID-->
@@ -50,7 +50,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="buttonStart" Content="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="Button_Click" Height="26"
+            <Button x:Name="buttonStart" Content="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="StartButton_Click" Height="26"
                 Grid.Column="1"/>
 
             <Grid x:Name="internSequences" Grid.Column="3">
@@ -64,9 +64,8 @@
                     IsSnapToTickEnabled="True" ValueChanged="sliderRectangles_ValueChanged"
                     Grid.Row="0" Margin="50,0,50,0"/>
 
-                <TextBox x:Name="inputSequence" VerticalAlignment="Center" Grid.Row="1" Margin="55,0,55,0">
-                    ABCDE
-                </TextBox>
+                <TextBox x:Name="inputSequence" Text="{Binding Path=SequenceFromApp}" VerticalAlignment="Center" Grid.Row="1" Margin="55,0,55,0"/>
+
             </Grid>
             
 

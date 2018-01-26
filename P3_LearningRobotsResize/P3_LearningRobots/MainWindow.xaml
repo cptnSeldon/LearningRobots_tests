@@ -1,0 +1,126 @@
+﻿<Window x:Class="P3_LearningRobots.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:P3_LearningRobots"
+        mc:Ignorable="d"
+        Title="HE-ARC Autumn project - Learning Robots"
+        MinHeight="600" MinWidth="800">
+    
+    <DockPanel x:Name="main_panel">
+
+        <!--#region MENU-->
+        <Menu DockPanel.Dock="Top" Width="Auto" Height="20" VerticalAlignment="Top">
+            <MenuItem Header="_Options">
+                <MenuItem x:Name="record" Header="_Record" Click="Record_Click" IsCheckable="True"/>
+                <MenuItem x:Name="replay" Header="_Replay" Click="Replay_Click"/>
+                <Separator/>
+                <MenuItem x:Name="saveJSON" Header="Save _JSON" Click="JSON_Click"/>
+                <Separator/>
+                <MenuItem x:Name="app_exit" Header="E_xit"  Click="AppExit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem x:Name="about" Header="_About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+        <!--#endregion MENU-->
+
+        <!--#region FOOTER-->
+        <Grid DockPanel.Dock="Bottom" x:Name="bottom_panel" Height="50">
+
+        </Grid>
+        <!--#endregion FOOTER-->
+
+        <!--#region RIGHT-->
+        <Grid DockPanel.Dock="Right" x:Name="right_panel" Width="200" VerticalAlignment="Top">
+            <!--#region ROW DEFINITION-->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+
+            </Grid.RowDefinitions>
+            <!--#endregion ROW DEFINITION-->
+
+            <!--#region INFOS-->
+            <Grid x:Name="info_inside_grid" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel x:Name="info_stack_left" Grid.Column="0">
+                    <Label x:Name="sequence_title" Content="Sequence" FontSize="15" FontWeight="Bold"/>
+                    <Label x:Name="sequence_completed" Content="Completed"/>
+                    <Label x:Name="sequence_errors" Content="Errors"/>
+                </StackPanel>
+                <StackPanel x:Name="info_stack_right" Grid.Column="1">
+                    <Label Content="" FontSize="15" FontWeight="Bold"/>
+                    <Label x:Name="label_completed" Content="x times"/>
+                    <Label x:Name="label_error" Content="x times"/>
+                </StackPanel>
+            </Grid>
+            <!--#endregion INFOS-->
+            
+            <!--#region DRAWING PARAMETERS-->
+            <Grid  x:Name="drawing_parameters_grid" Grid.Row="1">
+                <Grid x:Name="drawing_inside_grid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel x:Name="drawing_stack_left" Grid.Column="0">
+                        <Label x:Name="drawing_title" Content="Drawing" FontSize="15" FontWeight="Bold"/>
+                        <Label x:Name="drawing_hands" Content="Show Hands"/>
+                        <Label x:Name="drawing_direction_vectors" Content="Show Direction Vectors"/>
+                        <Label x:Name="drawing_center_vectors" Content="Show Distance Vectors" />
+                        <Label x:Name="drawing_percentage" Content="Show Percentage"/>
+                    </StackPanel>
+                    <StackPanel x:Name="drawing_stack_right" Grid.Column="1">
+                        <Label Content="" FontSize="19" FontWeight="Bold"/>
+                        <CheckBox x:Name="check_hands" />
+                        <Label Content="" FontSize="1"/>
+                        <CheckBox x:Name="check_direction_vectors"/>
+                        <Label Content="" FontSize="1"/>
+                        <CheckBox x:Name="check_distance_vectors"/>
+                        <Label Content="" FontSize="1"/>
+                        <CheckBox x:Name="check_percentage"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <!--#endregion DRAWING PARAMETERS-->
+
+            <!--#region CONTROLS-->
+            <Grid x:Name="control_grid" Grid.Row="2">
+                <StackPanel x:Name="controls_stack_left" Grid.Column="0">
+                    <Label x:Name="controls_title" Content="Controls" FontSize="15" FontWeight="Bold"/>
+                    <Label x:Name="label_slider" Content="Zones [0-5]" HorizontalAlignment="Center"/>
+                    <Slider x:Name="slider_rectangles" TickFrequency="1" TickPlacement="BottomRight" Minimum="0" Maximum="5" VerticalAlignment="Center" 
+                            IsSnapToTickEnabled="True"
+                            Grid.Row="0" Margin="20,0,20,0"
+                            ValueChanged="SliderRectangles_ValueChanged"/>
+                    <Label x:Name="label_sequence_generator" Content="Sequence Generator" HorizontalAlignment="Center"/>
+                    
+                    <TextBox x:Name="input_sequence" VerticalAlignment="Center" Grid.Row="1" Margin="25,0,25,0"
+                             PreviewTextInput="Input_sequence_PreviewTextInput"
+                             PreviewKeyDown="Input_sequence_PreviewKeyDown"/>
+                    <Label Content="" FontSize="1"/>
+                    <Button x:Name="button_start" Content="Start" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50"
+                            Click="StartButton_Click"/>
+                </StackPanel>
+            </Grid>
+            <!--#endregion CONTROLS-->
+
+        </Grid>
+        <!--#endregion RIGHT-->
+
+        <!--#region LEFT-->
+        <Canvas DockPanel.Dock="Left" x:Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="500" MinHeight="500">
+
+            <Image x:Name="image" Height="{Binding Path=ActualHeight, ElementName=canvas}" Width="{Binding Path=ActualWidth, ElementName=canvas}" />
+            
+        </Canvas>
+        <!--#endregion LEFT-->
+
+    </DockPanel>
+</Window>
